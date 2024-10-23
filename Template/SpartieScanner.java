@@ -78,60 +78,92 @@ public class SpartieScanner {
         System.out.println("isAtEnd(): " + isAtEnd());
         System.out.println("current: " + current);
         
-        if (!isAtEnd()) {
-            
-            System.out.println("nextCharacter: " + nextCharacter);
-            // Hint: Start of not knowing what the token is, if we can determine it, return
-            // it, otherwise, return null
-            
-            if (nextCharacter == ' ') {
-                type = TokenType.IGNORE;
-            } else if (nextCharacter == '\n') {
-                line++;
-                type = TokenType.IGNORE;
-                System.out.println("new line");
-            // SIMPLE TOKENS
-            } else if (nextCharacter == ';') {
-                type = TokenType.SEMICOLON;
-            } else if (nextCharacter == ',') {
-                type = TokenType.COMMA;
-            } else if (nextCharacter == '=') {
-                type = TokenType.ASSIGN;
-            } else if (nextCharacter == '{') {
-                type = TokenType.LEFT_BRACE;
-            } else if (nextCharacter == '}') {
-                type = TokenType.RIGHT_BRACE;
-            } else if (nextCharacter == '(') {
-                type = TokenType.LEFT_PAREN;
-            } else if (nextCharacter == ')') {
-                type = TokenType.RIGHT_PAREN;
-            } else if (nextCharacter == '+') {
-                type = TokenType.ADD;
-            } else if (nextCharacter == '-') {
-                type = TokenType.SUBTRACT; 
-            } else if (nextCharacter == '*') {
-                type = TokenType.MULTIPLY;
-            } else if (nextCharacter == '!') {
-                type = TokenType.NOT;
-            } else {
-                Token token = null;
-                return token;           
-            }
-            
-            current++;
+        
+        System.out.println("nextCharacter: " + nextCharacter);
+        // Hint: Start of not knowing what the token is, if we can determine it, return
+        // it, otherwise, return null
+        
+        if (nextCharacter == ' ') {
+            type = TokenType.IGNORE;
+        } else if (nextCharacter == '\n') {
+            line++;
+            type = TokenType.IGNORE;
+            System.out.println("new line");
+        // SIMPLE TOKENS
+        } else if (nextCharacter == ';') {
+            type = TokenType.SEMICOLON;
+        } else if (nextCharacter == ',') {
+            type = TokenType.COMMA;
+        } else if (nextCharacter == '{') {
+            type = TokenType.LEFT_BRACE;
+        } else if (nextCharacter == '}') {
+            type = TokenType.RIGHT_BRACE;
+        } else if (nextCharacter == '(') {
+            type = TokenType.LEFT_PAREN;
+        } else if (nextCharacter == ')') {
+            type = TokenType.RIGHT_PAREN;
+        } else if (nextCharacter == '+') {
+            type = TokenType.ADD;
+        } else if (nextCharacter == '-') {
+            type = TokenType.SUBTRACT; 
+        } else if (nextCharacter == '*') {
+            type = TokenType.MULTIPLY;
+        } else {
+            Token token = null;
+            return token;           
         }
+        
+        current++;
         Token token = new Token(type, String.valueOf(nextCharacter), line);
         return token;
     }
 
     // TODO: Complete implementation
     private Token getComparisonToken() {
+
         // Hint: Examine the character for a comparison but check the next character (as
         // long as one is available)
         // For example: < or <=
         char nextCharacter = source.charAt(current);
+        String text = String.valueOf(nextCharacter);
+        TokenType type = TokenType.UNDEFINED;
+        if (nextCharacter == '<') {
+            if (current + 1 < source.length() && source.charAt(current + 1) == '=') {
+                text = "<=";
+                type = TokenType.LESS_EQUAL;
+                current++;
+            } else {
+                type = TokenType.LESS_THAN;
+            }
+        } else if (nextCharacter == '>') {
+            if (current + 1 < source.length() && source.charAt(current + 1) == '=') {
+                text = ">=";
+                type = TokenType.GREATER_EQUAL;
+                current++;
+            } else {
+                type = TokenType.GREATER_THAN;
+            }
+        } else if (nextCharacter == '=') {
+            if (current + 1 < source.length() && source.charAt(current + 1) == '=') {
+                type = TokenType.EQUIVALENT;
+                text = "==";
+                current++;
+            } else {
+                type = TokenType.ASSIGN;
+            }
+        } else if (nextCharacter == '!') {
+            if (current + 1 < source.length() && source.charAt(current + 1) == '=') {
+                type = TokenType.NOT_EQUAL;
+                text = "!=";
+                current++;
+            } else {
+                type = TokenType.NOT;
+            }
+        }
+        Token token = new Token(type, text, line);
+        current++;
 
-        return null;
+        return token;
     }
 
     // TODO: Complete implementation
