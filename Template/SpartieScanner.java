@@ -37,7 +37,7 @@ public class SpartieScanner {
             if (token.type != TokenType.IGNORE)
                 tokens.add(token);
         }
-
+        
         return tokens;
     }
 
@@ -73,11 +73,55 @@ public class SpartieScanner {
 
         char nextCharacter = source.charAt(current);
 
-        // Hint: Start of not knowing what the token is, if we can determine it, return
-        // it, otherwise, return null
         TokenType type = TokenType.UNDEFINED;
 
-        return null;
+        System.out.println("isAtEnd(): " + isAtEnd());
+        System.out.println("current: " + current);
+        
+        if (!isAtEnd()) {
+            
+            System.out.println("nextCharacter: " + nextCharacter);
+            // Hint: Start of not knowing what the token is, if we can determine it, return
+            // it, otherwise, return null
+            
+            if (nextCharacter == ' ') {
+                type = TokenType.IGNORE;
+            } else if (nextCharacter == '\n') {
+                line++;
+                type = TokenType.IGNORE;
+                System.out.println("new line");
+            // SIMPLE TOKENS
+            } else if (nextCharacter == ';') {
+                type = TokenType.SEMICOLON;
+            } else if (nextCharacter == ',') {
+                type = TokenType.COMMA;
+            } else if (nextCharacter == '=') {
+                type = TokenType.ASSIGN;
+            } else if (nextCharacter == '{') {
+                type = TokenType.LEFT_BRACE;
+            } else if (nextCharacter == '}') {
+                type = TokenType.RIGHT_BRACE;
+            } else if (nextCharacter == '(') {
+                type = TokenType.LEFT_PAREN;
+            } else if (nextCharacter == ')') {
+                type = TokenType.RIGHT_PAREN;
+            } else if (nextCharacter == '+') {
+                type = TokenType.ADD;
+            } else if (nextCharacter == '-') {
+                type = TokenType.SUBTRACT; 
+            } else if (nextCharacter == '*') {
+                type = TokenType.MULTIPLY;
+            } else if (nextCharacter == '!') {
+                type = TokenType.NOT;
+            } else {
+                Token token = null;
+                return token;           
+            }
+            
+            current++;
+        }
+        Token token = new Token(type, String.valueOf(nextCharacter), line);
+        return token;
     }
 
     // TODO: Complete implementation
