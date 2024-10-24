@@ -73,22 +73,16 @@ public class SpartieScanner {
 
         char nextCharacter = source.charAt(current);
 
-        TokenType type = TokenType.UNDEFINED;
-
-        System.out.println("isAtEnd(): " + isAtEnd());
-        System.out.println("current: " + current);
-        
-        
-        System.out.println("nextCharacter: " + nextCharacter);
         // Hint: Start of not knowing what the token is, if we can determine it, return
         // it, otherwise, return null
+        TokenType type = TokenType.UNDEFINED;
         
+        // we do not tokenize spaces and new lines
         if (nextCharacter == ' ') {
             type = TokenType.IGNORE;
         } else if (nextCharacter == '\n') {
             line++;
             type = TokenType.IGNORE;
-            System.out.println("new line");
         // SIMPLE TOKENS
         } else if (nextCharacter == ';') {
             type = TokenType.SEMICOLON;
@@ -129,6 +123,7 @@ public class SpartieScanner {
         String text = String.valueOf(nextCharacter);
         TokenType type = TokenType.UNDEFINED;
         
+        // check if the first character is a certain comparison; if it is, then examine next character to see if it is of a specific type
         if (nextCharacter == '<') {
             if (current + 1 < source.length() && examine('=')) {
                 text = "<=";
@@ -180,6 +175,7 @@ public class SpartieScanner {
         TokenType type = TokenType.UNDEFINED;
         if (nextCharacter == '/') {
             if (current + 1 < source.length() && examine('/')) {
+                // ignore entire line after the comment
                 while (current + 1 < source.length() && ! examine('\n')) {
                     current++;
                 }
