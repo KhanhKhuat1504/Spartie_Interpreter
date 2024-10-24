@@ -124,11 +124,13 @@ public class SpartieScanner {
         // Hint: Examine the character for a comparison but check the next character (as
         // long as one is available)
         // For example: < or <=
+        
         char nextCharacter = source.charAt(current);
         String text = String.valueOf(nextCharacter);
         TokenType type = TokenType.UNDEFINED;
+        
         if (nextCharacter == '<') {
-            if (current + 1 < source.length() && source.charAt(current + 1) == '=') {
+            if (current + 1 < source.length() && examine('=')) {
                 text = "<=";
                 type = TokenType.LESS_EQUAL;
                 current++;
@@ -136,7 +138,7 @@ public class SpartieScanner {
                 type = TokenType.LESS_THAN;
             }
         } else if (nextCharacter == '>') {
-            if (current + 1 < source.length() && source.charAt(current + 1) == '=') {
+            if (current + 1 < source.length() && examine('=')) {
                 text = ">=";
                 type = TokenType.GREATER_EQUAL;
                 current++;
@@ -144,7 +146,7 @@ public class SpartieScanner {
                 type = TokenType.GREATER_THAN;
             }
         } else if (nextCharacter == '=') {
-            if (current + 1 < source.length() && source.charAt(current + 1) == '=') {
+            if (current + 1 < source.length() && examine('=')) {
                 type = TokenType.EQUIVALENT;
                 text = "==";
                 current++;
@@ -152,14 +154,18 @@ public class SpartieScanner {
                 type = TokenType.ASSIGN;
             }
         } else if (nextCharacter == '!') {
-            if (current + 1 < source.length() && source.charAt(current + 1) == '=') {
+            if (current + 1 < source.length() && examine('=')) {
                 type = TokenType.NOT_EQUAL;
                 text = "!=";
                 current++;
             } else {
                 type = TokenType.NOT;
             }
+        } else {
+            Token token = null;
+            return token;   
         }
+        
         Token token = new Token(type, text, line);
         current++;
 
@@ -171,8 +177,24 @@ public class SpartieScanner {
         // Hint: Examine the character for a comparison but check the next character (as
         // long as one is available)
         char nextCharacter = source.charAt(current);
+        TokenType type = TokenType.UNDEFINED;
+        if (nextCharacter == '/') {
+            if (current + 1 < source.length() && examine('/')) {
+                while (current + 1 < source.length() && ! examine('\n')) {
+                    current++;
+                }
+                type = TokenType.IGNORE;
+            } else {
+                type = TokenType.DIVIDE;
+            }
+        } else {
+            Token token = null;
+            return token;   
+        }
+        Token token = new Token(type, String.valueOf(nextCharacter), line);
+        current++;
 
-        return null;
+        return token;
     }
 
     // TODO: Complete implementation
