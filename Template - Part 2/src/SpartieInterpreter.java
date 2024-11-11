@@ -83,21 +83,26 @@ public class SpartieInterpreter {
         // TODO: still need to cast them to doubles. Use the primitive type, e.g.
         // (double)left
         // TODO: we do not support >, >=, <, or <= on Strings
+        
+        double left_double = (double) left;
+        double right_double = (double) right;
+
         switch (expression.operator.type) {
             case SUBTRACT:
-                return null;
+                return (left_double - right_double);
             case MULTIPLY:
-                return null;
+                return (left_double * right_double);
             case DIVIDE:
-                return null;
+                return (left_double / right_double);
             case GREATER_THAN:
-                return null;
+                return (left_double > right_double);
             case GREATER_EQUAL:
-                return null;
+                return (left_double >= right_double);
             case LESS_THAN:
-                return null;
+                return (left_double < right_double);
             case LESS_EQUAL:
-                return null;
+                return (left_double <= right_double);
+                
         }
 
         return null;
