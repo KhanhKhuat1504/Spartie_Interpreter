@@ -1,3 +1,5 @@
+import { Worker, isMainThread, parentPort, workerData } from 'worker_threads';
+
 interface Task {
   id: number;
   description: string;
@@ -54,9 +56,52 @@ class TaskManager {
       console.log(`Task ID ${id} not found.`);
     }
   }
+
+  // Add tasks in parallel using worker threads
+  async addTasksInParallel(tasks: string[], batchSize: number): Promise<void> {
+    const numBatches = Math.ceil(tasks.length / batchSize);
+    const workerPromises: Promise<void>[] = [];
+
+    for (let i = 0; i < numBatches; i++) {
+      const batch: string[] = tasks.slice(i * batchSize, (i + 1) * batchSize);
+      const workerPromise = new Promise<void>((resolve, reject) => {
+        const worker = new Worker(__filename, {
+          workerData: { batch },
+        });
+
+        worker.on('message', (message) => {
+          console.log(message);
+        });
+
+        worker.on('error', reject);
+        worker.on('exit', (code) => {
+          if (code !== 0) {
+            reject(new Error(`Worker stopped with exit code ${code}`));
+          } else {
+            resolve();
+          }
+        });
+      });
+
+      workerPromises.push(workerPromise);
+    }
+
+    await Promise.all(workerPromises);
+  }
 }
 
-// Demo function
+// Worker thread logic (this only runs in the worker thread)
+if (!isMainThread) {
+  const { batch }: { batch: string[] } = workerData;  // Explicit type for 'batch'
+  const taskManager = new TaskManager();
+
+  batch.forEach((description: string) => {
+    taskManager.addTask(description);
+  });
+
+  parentPort?.postMessage(`Batch of ${batch.length} tasks added.`);
+}
+
 async function demoTaskManager() {
   console.log("Welcome to Task Manager 3000!");
 
@@ -79,5 +124,28 @@ async function demoTaskManager() {
   taskManager.printTasks();
 }
 
-// Run the demo
-demoTaskManager();
+// Demo function for parallelism
+async function demoTaskManagerParallelism() {
+  const taskManager = new TaskManager();
+
+  // Define a large number of tasks
+  const tasks = Array.from({ length: 100 }, (_, i) => `Task ${i + 1}`);
+
+  // Add tasks in parallel
+  await taskManager.addTasksInParallel(tasks, 10);
+
+  // Print tasks
+  taskManager.printTasks();
+}
+
+// Run both demos in sequence (only in the main thread)
+if (isMainThread) {
+  demoTaskManager()
+    .then(() => {
+      console.log("\nNow running parallelism test...\n");
+      return demoTaskManagerParallelism();
+    })
+    .catch((error) => {
+      console.error("Error in demo:", error);
+    });
+}
