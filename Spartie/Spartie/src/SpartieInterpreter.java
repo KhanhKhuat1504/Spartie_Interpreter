@@ -4,21 +4,23 @@ public class SpartieInterpreter {
     private Environment globalEnvironment = new Environment();
 
     public void run(List<Statement> statements) {
-        for(Statement statement : statements) {
+        for (Statement statement : statements) {
             interpret(statement);
         }
     }
 
     private void interpret(Statement statement) {
-        switch(statement) {
-            case Statement.PrintStatement printStatement ->  interpretPrintStatement(printStatement);
+        switch (statement) {
+            case Statement.PrintStatement printStatement -> interpretPrintStatement(printStatement);
             case Statement.ExpressionStatement expressionStatement -> interpretExpressionStatement(expressionStatement);
             case Statement.VariableStatement variableStatement -> interpretVariableStatement(variableStatement);
             case Statement.BlockStatement blockStatement -> interpretBlockStatement(blockStatement);
             case Statement.IfStatement ifStatement -> interpretIfStatement(ifStatement);
             case Statement.WhileStatement whileStatement -> interpretWhileStatement(whileStatement);
-            case null, default -> {}
-        };
+            case null, default -> {
+            }
+        }
+        ;
     }
 
     private Object interpret(Expression expression) {
@@ -37,10 +39,19 @@ public class SpartieInterpreter {
     // Statement Implementation
     private void interpretWhileStatement(Statement.WhileStatement statement) {
         // TODO: Evaluate the while statement based on the condition
+        while (isTrue(interpret(statement.condition))) {
+            interpret(statement.body);
+        }
     }
 
     private void interpretIfStatement(Statement.IfStatement statement) {
         // TODO: Evaluate the condition and then execute the appropriate branch
+        Object condition = interpret(statement.condition);
+        if (isTrue(condition)) {
+            interpret(statement.thenBranch);
+        } else if (statement.elseBranch != null) {
+            interpret(statement.elseBranch);
+        }
     }
 
     private void interpretBlockStatement(Statement.BlockStatement statement) {
@@ -69,7 +80,8 @@ public class SpartieInterpreter {
     }
 
     private void interpretBlock(List<Statement> statements, Environment environment) {
-        // Store a reference to the previous environment and swap it out with the new environment
+        // Store a reference to the previous environment and swap it out with the new
+        // environment
         Environment previous = globalEnvironment;
 
         globalEnvironment = environment;
@@ -89,8 +101,7 @@ public class SpartieInterpreter {
             if (isTrue(left)) {
                 return left;
             }
-        }
-        else {
+        } else {
             if (!isTrue(left)) {
                 return left;
             }
@@ -101,15 +112,17 @@ public class SpartieInterpreter {
     }
 
     private Object interpretAssign(Expression.AssignmentExpression expression) {
-        // TODO: Interpret the expression for the assignment and then assign it to our global environment,
-        //  then return the value
-
-        return null;
+        // TODO: Interpret the expression for the assignment and then assign it to our
+        // global environment,
+        // then return the value
+        Object value = interpret(expression.value);
+        globalEnvironment.assign(expression.name, value);
+        return value;
     }
 
     private Object interpretVariable(Expression.VariableExpression expression) {
         // TODO: Return the value from our global environment
-        return null;
+        return globalEnvironment.get(expression.name.text);
     }
 
     private Object interpretLiteral(Expression.LiteralExpression expression) {
@@ -129,7 +142,7 @@ public class SpartieInterpreter {
                 return !isTrue(right);
             case SUBTRACT:
                 validateOperand(expression.operator, right);
-                return -(double)right;
+                return -(double) right;
         }
 
         return null;
@@ -139,24 +152,24 @@ public class SpartieInterpreter {
         Object left = interpret(expression.left);
         Object right = interpret(expression.right);
 
-        // Handle unique case with add operator that can be applied to Strings and Doubles
+        // Handle unique case with add operator that can be applied to Strings and
+        // Doubles
         if (expression.operator.type == TokenType.ADD) {
             if (left instanceof Double && right instanceof Double) {
                 return (double) left + (double) right;
             } else if (left instanceof String && right instanceof String) {
                 return (String) left + (String) right;
-            }
-            else if ((left instanceof String || right instanceof String) && (left instanceof Double || right instanceof Double)) {
+            } else if ((left instanceof String || right instanceof String)
+                    && (left instanceof Double || right instanceof Double)) {
                 if (left instanceof Double) {
-                    return String.format("%.2f%s", (Double)left, (String)right);
-                }
-                else {
-                    return String.format("%s%.2f", (String)left, (Double)right);
+                    return String.format("%.2f%s", (Double) left, (String) right);
+                } else {
+                    return String.format("%s%.2f", (String) left, (Double) right);
                 }
             }
         }
 
-        switch(expression.operator.type) {
+        switch (expression.operator.type) {
             case EQUIVALENT:
                 return isEquivalent(left, right);
             case NOT_EQUAL:
@@ -166,21 +179,21 @@ public class SpartieInterpreter {
         // If we ge this far, then validate operands
         validateOperands(expression.operator, left, right);
 
-        switch(expression.operator.type) {
+        switch (expression.operator.type) {
             case SUBTRACT:
-                return (double)left + (double)right;
+                return (double) left + (double) right;
             case MULTIPLY:
-                return (double)left * (double)right;
+                return (double) left * (double) right;
             case DIVIDE:
-                return (double)left / (double)right;
+                return (double) left / (double) right;
             case GREATER_THAN:
-                return (double)left > (double)right;
+                return (double) left > (double) right;
             case GREATER_EQUAL:
-                return (double)left >= (double)right;
+                return (double) left >= (double) right;
             case LESS_THAN:
-                return (double)left < (double)right;
+                return (double) left < (double) right;
             case LESS_EQUAL:
-                return (double)left <= (double)right;
+                return (double) left <= (double) right;
         }
 
         return null;
@@ -195,27 +208,33 @@ public class SpartieInterpreter {
         // 2. The equals method returns true (String or Double)
 
         // We have to account a NPE
-        if (left == null && right == null) return true;
-        if (left == null || right == null) return false;
+        if (left == null && right == null)
+            return true;
+        if (left == null || right == null)
+            return false;
 
         return left.equals(right);
     }
 
     // False is literal false or null
     private boolean isTrue(Object object) {
-        if (object == null) return false;
-        if (object instanceof Boolean) return (boolean)object;
+        if (object == null)
+            return false;
+        if (object instanceof Boolean)
+            return (boolean) object;
         return true;
     }
 
     // Validate the type
     private void validateOperand(Token operator, Object operand) {
-        if (operand instanceof Double) return;
+        if (operand instanceof Double)
+            return;
         error("Invalid type on line " + operator.line + " : " + operator.text + operand);
     }
 
     private void validateOperands(Token operator, Object operand1, Object operand2) {
-        if (operand1 instanceof Double && operand2 instanceof Double) return;
+        if (operand1 instanceof Double && operand2 instanceof Double)
+            return;
         error("Invalid type on line " + operator.line + " : " + operand1 + operator.text + operand2);
     }
 

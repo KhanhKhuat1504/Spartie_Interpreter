@@ -11,8 +11,7 @@ public class Main {
         if (args.length != 1) {
             System.out.println("Usage: spartie [file]");
             System.exit(ErrorCode.INCORRECT_USAGE);
-        }
-        else {
+        } else {
             String filename = args[0];
             File source = new File(filename);
             if (!source.exists()) {
@@ -21,7 +20,7 @@ public class Main {
             }
 
             try {
-                byte [] sourceCodeBytes = Files.readAllBytes(Paths.get(filename));
+                byte[] sourceCodeBytes = Files.readAllBytes(Paths.get(filename));
                 String sourceCode = new String(sourceCodeBytes, Charset.defaultCharset());
 
                 // Scan
