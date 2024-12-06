@@ -1,3 +1,7 @@
+
+/**
+ * @author Khanh Khuat (ltk30), Michelle Lo (mxl1347)
+ */
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;

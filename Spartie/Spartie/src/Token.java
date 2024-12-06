@@ -1,3 +1,7 @@
+
+/**
+ * @author Khanh Khuat (ltk30), Michelle Lo (mxl1347)
+ */
 public class Token {
     public final TokenType type;
     public final String text;

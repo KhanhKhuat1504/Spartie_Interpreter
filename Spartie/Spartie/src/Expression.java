@@ -1,3 +1,7 @@
+
+/**
+ * @author Khanh Khuat (ltk30), Michelle Lo (mxl1347)
+ */
 abstract class Expression {
 
     static class AssignmentExpression extends Expression {

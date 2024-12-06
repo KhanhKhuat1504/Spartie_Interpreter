@@ -1,3 +1,7 @@
+
+/**
+ * @author Khanh Khuat (ltk30), Michelle Lo (mxl1347)
+ */
 public enum TokenType {
     // Undefined
     UNDEFINED,
