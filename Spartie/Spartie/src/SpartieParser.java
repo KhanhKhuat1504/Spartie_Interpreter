@@ -4,7 +4,9 @@ import java.util.List;
 
 // From Crafting Interpreters
 public class SpartieParser {
-    private static class ParseError extends RuntimeException {}
+    private static class ParseError extends RuntimeException {
+    }
+
     private List<Token> tokens;
     private int current = 0;
 
@@ -14,7 +16,7 @@ public class SpartieParser {
 
     public List<Statement> parse() {
         List<Statement> statements = new ArrayList<>();
-        while (! isAtEnd()) {
+        while (!isAtEnd()) {
             statements.add(declaration());
         }
 
@@ -24,8 +26,7 @@ public class SpartieParser {
     private Statement declaration() {
         if (match(TokenType.VAR)) {
             return variableDeclaration();
-        }
-        else {
+        } else {
             return statement();
         }
     }
@@ -33,17 +34,13 @@ public class SpartieParser {
     private Statement statement() {
         if (match(TokenType.PRINT)) {
             return printStatement();
-        }
-        else if (match(TokenType.LEFT_BRACE)) {
+        } else if (match(TokenType.LEFT_BRACE)) {
             return new Statement.BlockStatement(block());
-        }
-        else if (match(TokenType.IF)) {
+        } else if (match(TokenType.IF)) {
             return ifStatement();
-        }
-        else if (match(TokenType.WHILE)) {
+        } else if (match(TokenType.WHILE)) {
             return whileStatement();
-        }
-        else if (match(TokenType.FOR)) {
+        } else if (match(TokenType.FOR)) {
             return forStatement();
         }
 
@@ -56,11 +53,9 @@ public class SpartieParser {
         Statement initializer;
         if (match(TokenType.SEMICOLON)) {
             initializer = null;
-        }
-        else if (match(TokenType.VAR)) {
+        } else if (match(TokenType.VAR)) {
             initializer = variableDeclaration();
-        }
-        else {
+        } else {
             initializer = expressionStatement();
         }
 
@@ -77,11 +72,25 @@ public class SpartieParser {
         consume(TokenType.RIGHT_PAREN, "Expect ')' after for condition.");
         Statement body = statement();
 
-        // TODO: We have the initializer, we have the condition, we have the increment. Take those components
-        //  and convert into while loop. Hint: Build a block statement and then a while statement using the condition.
+        // TODO: We have the initializer, we have the condition, we have the increment.
+        // Take those components
+        // and convert into while loop. Hint: Build a block statement and then a while
+        // statement using the condition.
+        if (increment != null) {
+            body = new Statement.BlockStatement(Arrays.asList(body, new Statement.ExpressionStatement(increment)));
+        }
+
+        if (condition == null) {
+            condition = new Expression.LiteralExpression(true);
+        }
+
+        body = new Statement.WhileStatement(condition, body);
+
+        if (initializer != null) {
+            body = new Statement.BlockStatement(Arrays.asList(initializer, body));
+        }
 
         return body;
-
     }
 
     private Statement whileStatement() {
@@ -93,6 +102,7 @@ public class SpartieParser {
 
         return new Statement.WhileStatement(condition, body);
     }
+
     private Statement ifStatement() {
         consume(TokenType.LEFT_PAREN, "Missing '(' after 'if'.");
         Expression condition = expression();
@@ -111,7 +121,7 @@ public class SpartieParser {
     private List<Statement> block() {
         List<Statement> statements = new ArrayList<>();
 
-        while (!check(TokenType.RIGHT_BRACE) && ! isAtEnd()) {
+        while (!check(TokenType.RIGHT_BRACE) && !isAtEnd()) {
             statements.add(declaration());
         }
 
@@ -254,10 +264,14 @@ public class SpartieParser {
     }
 
     private Expression primary() {
-        if (match(TokenType.IDENTIFIER)) return new Expression.VariableExpression(previous());
-        if (match(TokenType.FALSE)) return new Expression.LiteralExpression(false);
-        if (match(TokenType.TRUE)) return new Expression.LiteralExpression(true);
-        if (match(TokenType.NULL)) return new Expression.LiteralExpression(null);
+        if (match(TokenType.IDENTIFIER))
+            return new Expression.VariableExpression(previous());
+        if (match(TokenType.FALSE))
+            return new Expression.LiteralExpression(false);
+        if (match(TokenType.TRUE))
+            return new Expression.LiteralExpression(true);
+        if (match(TokenType.NULL))
+            return new Expression.LiteralExpression(null);
 
         if (match(TokenType.NUMBER, TokenType.STRING)) {
             return new Expression.LiteralExpression(previous().literal);
@@ -274,7 +288,8 @@ public class SpartieParser {
 
     // Error reporting
     private Token consume(TokenType type, String message) {
-        if (check(type)) return advance();
+        if (check(type))
+            return advance();
 
         throw error(peek(), message);
     }
@@ -300,12 +315,14 @@ public class SpartieParser {
     }
 
     private boolean check(TokenType type) {
-        if (isAtEnd()) return false;
+        if (isAtEnd())
+            return false;
         return peek().type == type;
     }
 
     private Token advance() {
-        if (!isAtEnd()) current++;
+        if (!isAtEnd())
+            current++;
         return previous();
     }
 
